@@ -5,15 +5,15 @@ export const calculateItemTotal = (item: CartItem) => {
   const { quantity } = item;
   const baseTotal = price * quantity;
 
-  // 적용 가능한 할인율 계산
-  const discountRate = getMaxApplicableDiscount(item);
-  const discountedTotal = baseTotal * (1 - discountRate);
+  // 수량별 할인율 찾기
+  const discount = item.product.discounts.reduce((maxDiscount, d) => {
+    return quantity >= d.quantity && d.rate > maxDiscount
+      ? d.rate
+      : maxDiscount;
+  }, 0);
 
-  return {
-    baseTotal,
-    discountedTotal: Math.round(discountedTotal),
-    appliedDiscountRate: discountRate,
-  };
+  // 할인 적용된 최종 금액 계산
+  return Math.round(baseTotal * (1 - discount));
 };
 
 export const getMaxApplicableDiscount = (item: CartItem) => {
